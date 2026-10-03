@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aprendendo o Word</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{overflow:hidden;background:#f3f2f1;color:#201f1e;font-family:"Segoe UI",Calibri,Arial,sans-serif;font-size:14px}
+button{font:inherit;cursor:pointer;border:0;background:none}
+svg{display:block}
+
+/* ===== Janela do Word (tela cheia) ===== */
+.app{position:fixed;inset:0;display:flex;flex-direction:column;background:#f3f2f1}
+
+/* Barra de título */
+.title{display:flex;align-items:center;gap:10px;padding:6px 10px;background:#f3f2f1;border-bottom:1px solid #e1dfdd;font-size:13px;min-height:40px}
+.wl{width:22px;height:22px;border-radius:3px;background:#2b579a;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:14px}
+.sa{display:flex;align-items:center;gap:7px;color:#444;white-space:nowrap}
+.tg{width:30px;height:16px;border-radius:9px;background:#0f6cbd;position:relative;flex:none}
+.tg::after{content:"";position:absolute;top:1.5px;right:1.5px;width:13px;height:13px;border-radius:50%;background:#fff}
+.qbtn{width:28px;height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#444}
+.qbtn:hover{background:#eaeaea}
+.fname{flex:1;text-align:center;color:#201f1e;font-size:13px}
+.srch{width:min(38%,440px);background:#fff;border:1px solid #d9d7d4;border-radius:4px;padding:5px 10px;color:#8a8886;display:flex;align-items:center;gap:7px;font-size:13px}
+.av{width:28px;height:28px;border-radius:50%;background:#8a4b38;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex:none}
+.titbtns{display:flex;gap:2px;margin-left:4px}
+.titbtns span{width:30px;height:26px;display:flex;align-items:center;justify-content:center;color:#444;border-radius:3px}
+
+/* Abas */
+.tabs{display:flex;align-items:center;gap:2px;padding:0 8px;background:#f3f2f1;border-bottom:1px solid #e1dfdd}
+.tab{color:#444;padding:7px 10px;font-size:13px;border-radius:4px 4px 0 0;white-space:nowrap;border-bottom:2px solid transparent}
+.tab:hover{background:#eaeaea}
+.tab.on{color:#2b579a;font-weight:600;border-bottom-color:#2b579a;background:#fff}
+.tabs .rt{margin-left:auto;display:flex;gap:6px;align-items:center}
+.tabs .rt span{border:1px solid #d9d7d4;border-radius:4px;padding:4px 10px;font-size:12px;color:#444;background:#fff;white-space:nowrap}
+.tabs .rt .sh{background:#2b579a;color:#fff;border-color:#2b579a}
+
+/* Faixa de opções */
+.ribbon{display:flex;gap:0;background:#fff;border-bottom:1px solid #e1dfdd;padding:4px 6px;overflow-x:auto;min-height:94px}
+.grp{display:flex;flex-direction:column;align-items:center;padding:2px 8px;border-right:1px solid #ededeb;gap:3px;flex:none}
+.grp>.row{flex:1;align-items:center}
+.row{display:flex;flex-direction:row;gap:3px;align-items:center}
+.gl{font-size:10.5px;color:#8a8886;white-space:nowrap;padding-top:1px}
+.btn{min-width:30px;min-height:28px;border:1px solid transparent;border-radius:4px;display:flex;align-items:center;justify-content:center;padding:0 5px;color:#333;gap:4px;white-space:nowrap}
+.btn:hover{background:#f3f2f1;border-color:#e1dfdd}
+.btn.big{flex-direction:column;min-height:66px;width:60px;font-size:11px;gap:3px;justify-content:flex-start;padding:6px 3px 2px;white-space:normal;text-align:center;line-height:1.1}
+.btn.big .lbl{white-space:normal;text-align:center;line-height:1.1}
+.btn.sm{justify-content:flex-start;min-height:22px;font-size:12.5px;gap:6px;padding:0 6px}
+.btn.sel{border-color:#d9d7d4;background:#fff;min-width:84px;justify-content:space-between;padding:0 7px}
+.col{display:flex;flex-direction:column;justify-content:center;gap:2px}
+.lbl{font-size:12.5px}
+.caretd{font-size:9px;color:#777;margin-left:2px}
+.sep{width:1px;background:#ededeb;margin:2px 2px}
+.gal{display:flex;border:1px solid #d9d7d4;border-radius:4px;overflow:hidden;align-self:center;height:60px}
+.gal div{padding:0 14px;display:flex;align-items:center;font-size:14px;border-right:1px solid #ededeb;color:#333}
+.gal div:last-child{border-right:0}
+.gal .t1{color:#2b579a;font-size:15px}
+.gal .t2{color:#2b579a;font-size:13px}
+.swatch{width:16px;height:4px;margin-top:1px;border-radius:1px}
+
+/* destaque guiado */
+.hl{border-color:#f5a300!important;background:#fff6df!important;box-shadow:0 0 0 2px #f5a30055;animation:pulse 1.1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px #f5a30033}}
+
+/* Mesa + folha */
+.desk{flex:1;min-height:0;background:#e6e6e6;overflow:auto;display:flex;flex-direction:column;align-items:center;padding:22px 16px 90px;gap:10px}
+.ruler{display:none;width:100%;max-width:816px;height:16px;background:#fff;background-image:repeating-linear-gradient(90deg,#c7c7c7 0 1px,transparent 1px 48px);border:1px solid #d9d7d4;border-radius:2px}
+.page{background:#fff;width:100%;max-width:816px;min-height:1056px;padding:76px 90px;box-shadow:0 1px 6px #0003,0 10px 30px #0002;font-family:Calibri,Arial,sans-serif;font-size:12pt;line-height:1.5;color:#000;transition:padding .4s,max-width .4s}
+.page.landscape{max-width:1056px;min-height:816px}
+.page h2{margin:0 0 10px;transition:.3s}
+.page p,.page ul,.page ol{margin:0 0 10px}
+.page ul,.page ol{padding-left:26px}
+.subhead{margin:10px 0 6px;font-size:14pt;color:#2b579a;border-bottom:1px solid #bcbcbc;padding-bottom:2px}
+.hd{font-size:9pt;color:#9a9a9a;border-bottom:1px dashed #cfcfcf;margin-bottom:14px;padding-bottom:3px}
+.ft{font-size:9pt;color:#9a9a9a;border-top:1px dashed #cfcfcf;margin-top:16px;padding-top:3px;text-align:center}
+.caret{display:inline-block;width:1.5px;height:1.05em;background:#000;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.err{text-decoration:underline wavy #e01010;text-decoration-skip-ink:none}
+.errg{text-decoration:underline wavy #1070e0;text-decoration-skip-ink:none}
+mark{background:#fff176;padding:0 1px}
+mark.g{background:#b9f6ca}
+.sel{background:#cfe3ff}
+.lk{color:#0563c1;text-decoration:underline}
+.img{display:inline-flex;align-items:center;justify-content:center;width:150px;height:104px;background:linear-gradient(135deg,#e8f0ff,#eafbe6);border:1px solid #b9c4d6;margin:4px 10px 4px 0;vertical-align:middle;color:#8aa}
+.shape{display:inline-flex;align-items:center;justify-content:center;background:#ffd24d;border:2px solid #e0a800;border-radius:50%;width:92px;height:92px;font-weight:700;color:#7a5c00;vertical-align:middle;margin:4px 8px}
+table.doc{border-collapse:collapse;margin:8px 0;font-size:11pt}
+table.doc td,table.doc th{border:1px solid #808080;padding:4px 16px}
+.appear{animation:appear .45s}
+@keyframes appear{from{opacity:0;transform:translateY(6px)}}
+
+/* Barra de status */
+.status{display:flex;align-items:center;justify-content:space-between;background:#2b579a;color:#fff;font-size:12px;padding:4px 14px}
+.status .right{display:flex;align-items:center;gap:16px}
+.zoom{display:flex;align-items:center;gap:8px}
+.zoom .bar{width:90px;height:3px;background:#ffffff80;border-radius:2px;position:relative}
+.zoom .bar::after{content:"";position:absolute;left:46%;top:-3px;width:9px;height:9px;border-radius:50%;background:#fff}
+
+/* ===== Cursor guia ===== */
+.cursor{position:fixed;z-index:60;pointer-events:none;transition:left .7s cubic-bezier(.4,0,.2,1),top .7s cubic-bezier(.4,0,.2,1);filter:drop-shadow(1px 2px 2px #0005)}
+.cursor.click svg{animation:tap .35s}
+@keyframes tap{50%{transform:scale(.78)}}
+
+/* ===== Popup de explicação (segue o clique) ===== */
+.pop{position:fixed;z-index:70;width:min(330px,86vw);background:#fff;border:1px solid #e1dfdd;border-radius:10px;box-shadow:0 10px 36px #0004;padding:14px 16px;transition:left .5s cubic-bezier(.4,0,.2,1),top .5s cubic-bezier(.4,0,.2,1);animation:popin .35s}
+@keyframes popin{from{opacity:0;transform:scale(.9)}}
+.pop::after{content:"";position:absolute;width:14px;height:14px;background:#fff;border-left:1px solid #e1dfdd;border-top:1px solid #e1dfdd;transform:rotate(45deg)}
+.pop[data-side="left"]::after{left:-8px;top:28px}
+.pop[data-side="right"]::after{right:-8px;top:28px}
+.pop[data-side="top"]::after{left:28px;bottom:-8px;transform:rotate(225deg)}
+.pop[data-side="bottom"]::after{left:28px;top:-8px}
+.pop .step{font-size:11px;font-weight:700;color:#f5a300;text-transform:uppercase;letter-spacing:.4px}
+.pop h3{margin:3px 0 6px;font-size:16px;color:#2b579a}
+.pop .body{font-size:13.5px;line-height:1.5;color:#333}
+.pop .body b{background:#fff1c9;color:#5a3b00;padding:0 3px;border-radius:3px}
+.pop .tip{display:block;margin-top:9px;font-size:12.5px;background:#f3f6fb;border-left:3px solid #2b579a;padding:6px 9px;border-radius:0 6px 6px 0;color:#345}
+.pop kbd{background:#f3f2f1;border:1px solid #c8c6c4;border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:12px;color:#201f1e}
+.pop .prog{height:4px;background:#edebe9;border-radius:3px;margin-top:12px}
+.pop .prog i{display:block;height:100%;background:linear-gradient(90deg,#f5a300,#ff6a3d);border-radius:3px;transition:width .4s}
+
+/* ===== Paleta de cores (menu suspenso do Word) ===== */
+.menu{position:fixed;z-index:75;background:#fff;border:1px solid #c8c6c4;border-radius:6px;box-shadow:0 8px 28px #0004;padding:10px;display:none;animation:popin .2s}
+.menu.show{display:block}
+.menu .mt{font-size:11px;color:#8a8886;margin:2px 0 5px}
+.menu .grid{display:grid;grid-template-columns:repeat(10,18px);gap:3px}
+.menu .grid.std{margin-top:8px}
+.sw{width:18px;height:18px;border-radius:2px;border:1px solid #0002;cursor:pointer}
+.sw:hover{outline:2px solid #2b579a;outline-offset:1px}
+.menu .pick{margin-top:9px;font-size:12px;color:#2b579a;display:flex;align-items:center;gap:6px}
+
+/* ===== Setas de navegação (cantos inferiores) ===== */
+.nav{position:fixed;bottom:26px;z-index:80;width:52px;height:52px;border-radius:50%;background:#2b579a;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px #0005}
+.nav:hover{background:#214a86}
+.nav:disabled{opacity:.3}
+#prev{left:26px}
+#next{right:26px}
+.auto{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:80;height:40px;padding:0 20px;border-radius:22px;background:#f5a300;color:#201f1e;font-weight:700;display:flex;align-items:center;gap:7px;box-shadow:0 6px 20px #0005}
+
+@media(max-width:720px){
+ .srch{display:none}
+ .tabs .rt{display:none}
+ .page{padding:40px 28px;min-height:auto}
+ .nav{width:46px;height:46px}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <div class="title">
+    <span class="wl">W</span>
+    <span class="sa"><span class="tg"></span>Salvamento Automático</span>
+    <span class="qbtn" id="bSave" title="Salvar">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2b579a" stroke-width="1.7"><path d="M4 4h12l4 4v12H4z"/><path d="M7 4v5h8V4" fill="#2b579a" stroke="none"/><rect x="8" y="13" width="8" height="5" stroke="#2b579a"/></svg>
+    </span>
+    <span class="qbtn" id="bUndo" title="Desfazer">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.8"><path d="M9 7L4 11l5 4"/><path d="M4 11h9a6 6 0 0 1 0 12h-3"/></svg>
+    </span>
+    <span class="qbtn" title="Refazer">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.8"><path d="M15 7l5 4-5 4"/><path d="M20 11h-9a6 6 0 0 0 0 12h3"/></svg>
+    </span>
+    <span class="fname" id="fname">Documento1 — Word</span>
+    <span class="srch">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a8886" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      Pesquisar
+    </span>
+    <span class="av">AB</span>
+    <span class="titbtns">
+      <span>&#x2013;</span><span>&#x25A1;</span><span>&#x2715;</span>
+    </span>
+  </div>
+
+  <div class="tabs">
+    <div class="tab" id="t0">Arquivo</div>
+    <div class="tab" id="t1">Página Inicial</div>
+    <div class="tab" id="t2">Inserir</div>
+    <div class="tab" id="t3">Design</div>
+    <div class="tab" id="t4">Layout</div>
+    <div class="tab" id="t5">Referências</div>
+    <div class="tab" id="t6">Correspondências</div>
+    <div class="tab" id="t7">Revisão</div>
+    <div class="tab" id="t8">Exibir</div>
+    <div class="tab" id="t9">Ajuda</div>
+    <div class="rt"><span>Comentários</span><span>Editando &#9662;</span><span class="sh">Compartilhar</span></div>
+  </div>
+
+  <div class="ribbon" id="ribbon"></div>
+
+  <div class="desk">
+    <div class="ruler" id="ruler"></div>
+    <div class="page" id="page"></div>
+  </div>
+
+  <div class="status">
+    <span id="wc">Página 1 de 1 &nbsp;&nbsp; 0 palavras &nbsp;&nbsp; Português (Brasil)</span>
+    <span class="right"><span>Layout de Impressão</span><span class="zoom">&#8211;<span class="bar"></span>&#43; &nbsp;100%</span></span>
+  </div>
+
+  <div class="cursor" id="cursor">
+    <svg width="26" height="26" viewBox="0 0 24 24"><path d="M4 2l7 18 2.5-7L21 10.5z" fill="#fff" stroke="#222" stroke-width="1.2" stroke-linejoin="round"/></svg>
+  </div>
+
+  <div class="menu" id="colorMenu"></div>
+
+  <div class="pop" id="pop" data-side="left">
+    <div class="step" id="pStep"></div>
+    <h3 id="pTitle"></h3>
+    <div class="body" id="pBody"></div>
+    <div class="prog"><i id="pProg"></i></div>
+  </div>
+
+  <button class="nav" id="prev" title="Voltar (←)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg>
+  </button>
+  <button class="nav" id="next" title="Próximo (→)">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg>
+  </button>
+  <button class="auto" id="auto">&#9654; Automático</button>
+
+</div>
+
+<script>
+// ===== Ícones SVG (recriados, estilo Word) =====
+const I = {
+  paste:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b05a2a" stroke-width="1.5"><rect x="5" y="5" width="12" height="15" rx="1" fill="#fff"/><rect x="8" y="2.5" width="6" height="3" rx="1" fill="#c86b35" stroke="none"/><rect x="7" y="2" width="8" height="4" rx="1"/></svg>',
+  cut:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.6"><circle cx="6" cy="7" r="2.4"/><circle cx="6" cy="17" r="2.4"/><path d="M8 8.5L20 18M8 15.5L20 6"/></svg>',
+  copy:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><rect x="8" y="8" width="11" height="13" rx="1" fill="#fff"/><rect x="5" y="4" width="11" height="13" rx="1"/></svg>',
+  brush:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><path d="M4 14l6-6 4 4-6 6H4z"/><path d="M14 4l4 4"/></svg>',
+  bold:'<b style="font-family:Georgia,serif;font-size:15px;color:#333">N</b>',
+  italic:'<i style="font-family:Georgia,serif;font-size:15px;color:#333">I</i>',
+  under:'<span style="font-family:Georgia,serif;font-size:15px;color:#333;text-decoration:underline">S</span>',
+  strike:'<span style="font-family:Georgia,serif;font-size:14px;color:#333;text-decoration:line-through">ab</span>',
+  sub:'<span style="font-size:13px;color:#333">x<sub>2</sub></span>',
+  sup:'<span style="font-size:13px;color:#333">x<sup>2</sup></span>',
+  grow:'<span style="color:#333">A<sup style="font-size:9px">&#9650;</sup></span>',
+  shrink:'<span style="color:#333;font-size:12px">A<sub style="font-size:9px">&#9660;</sub></span>',
+  textcolor:'<span style="display:flex;flex-direction:column;align-items:center;line-height:1"><b style="color:#333;font-size:14px">A</b><span style="width:15px;height:4px;background:#e01010;border-radius:1px;margin-top:1px"></span></span>',
+  highlight:'<span style="display:flex;flex-direction:column;align-items:center;line-height:1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><path d="M4 16l8-8 4 4-8 8H4z"/><path d="M12 6l4 4"/></svg><span style="width:15px;height:4px;background:#fff176;margin-top:1px"></span></span>',
+  bullets:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#555"><circle cx="4" cy="6" r="1.6"/><circle cx="4" cy="12" r="1.6"/><circle cx="4" cy="18" r="1.6"/><rect x="8" y="5" width="12" height="2"/><rect x="8" y="11" width="12" height="2"/><rect x="8" y="17" width="12" height="2"/></svg>',
+  numbers:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#555" font-size="7"><text x="1" y="8">1</text><text x="1" y="14">2</text><text x="1" y="20">3</text><rect x="8" y="5" width="12" height="2"/><rect x="8" y="11" width="12" height="2"/><rect x="8" y="17" width="12" height="2"/></svg>',
+  alignL:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#555"><rect x="3" y="5" width="18" height="2"/><rect x="3" y="10" width="12" height="2"/><rect x="3" y="15" width="18" height="2"/><rect x="3" y="20" width="12" height="2"/></svg>',
+  alignC:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#555"><rect x="3" y="5" width="18" height="2"/><rect x="6" y="10" width="12" height="2"/><rect x="3" y="15" width="18" height="2"/><rect x="6" y="20" width="12" height="2"/></svg>',
+  alignR:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#555"><rect x="3" y="5" width="18" height="2"/><rect x="9" y="10" width="12" height="2"/><rect x="3" y="15" width="18" height="2"/><rect x="9" y="20" width="12" height="2"/></svg>',
+  justify:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#555"><rect x="3" y="5" width="18" height="2"/><rect x="3" y="10" width="18" height="2"/><rect x="3" y="15" width="18" height="2"/><rect x="3" y="20" width="18" height="2"/></svg>',
+  spacing:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><path d="M6 4v16M3 7l3-3 3 3M3 17l3 3 3-3"/><rect x="12" y="5" width="9" height="1.6" fill="#555" stroke="none"/><rect x="12" y="11" width="9" height="1.6" fill="#555" stroke="none"/><rect x="12" y="17" width="9" height="1.6" fill="#555" stroke="none"/></svg>',
+  indent:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#555"><rect x="9" y="5" width="12" height="2"/><rect x="9" y="15" width="12" height="2"/><rect x="3" y="10" width="18" height="2"/><path d="M3 6l4 3-4 3z"/></svg>',
+  table:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="1.4"><rect x="3" y="4" width="18" height="16"/><path d="M3 10h18M3 15h18M9 4v16M15 4v16"/></svg>',
+  pic:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2b579a" stroke-width="1.4"><rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="8.5" cy="9" r="1.6" fill="#2b579a"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg>',
+  shape:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.4"><rect x="3" y="4" width="8" height="8"/><circle cx="17" cy="8" r="4"/><path d="M8 14l4 7 4-7z"/></svg>',
+  link:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.6"><path d="M9 13a4 4 0 0 0 6 0l2-2a4 4 0 0 0-6-6l-1 1"/><path d="M15 11a4 4 0 0 0-6 0l-2 2a4 4 0 0 0 6 6l1-1"/></svg>',
+  header:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="4" y="3" width="16" height="18"/><rect x="6" y="5" width="12" height="3" fill="#8aa" stroke="none"/><path d="M6 11h12M6 14h12M6 17h8"/></svg>',
+  margin:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="4" y="3" width="16" height="18"/><rect x="7" y="6" width="10" height="12" stroke-dasharray="2 2"/></svg>',
+  orient:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="6" y="3" width="12" height="16"/><path d="M4 20a9 9 0 0 1 2-9" stroke-width="1.3"/><path d="M3 10l1.5 2L7 11"/></svg>',
+  size:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="5" y="3" width="14" height="18"/></svg>',
+  cols:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="4" y="4" width="7" height="16"/><rect x="13" y="4" width="7" height="16"/></svg>',
+  spell:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="1.5"><path d="M3 17l4-10 4 10M4 14h6"/><path d="M14 15l2 2 4-5"/></svg>',
+  words:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.4"><path d="M4 6h16M4 11h16M4 16h10"/><text x="13" y="21" font-size="7" fill="#555" stroke="none">123</text></svg>',
+  ruler:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="3" y="8" width="18" height="8"/><path d="M7 8v3M11 8v4M15 8v3M19 8v4"/></svg>',
+  zoom:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.6"><circle cx="10" cy="10" r="6"/><path d="M15 15l5 5M8 10h4M10 8v4"/></svg>',
+  editor:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a4fff" stroke-width="1.5"><path d="M4 20l3-1 10-10-2-2L5 17z"/><path d="M18 4l2 2"/><circle cx="19" cy="18" r="2" fill="#8a4fff" stroke="none"/></svg>',
+  dictate:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3"/></svg>',
+  find:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.6"><circle cx="10" cy="10" r="6"/><path d="M15 15l5 5"/></svg>',
+  replace:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><path d="M4 7h10l-2-2M20 17H10l2 2"/><path d="M14 7l2 2M10 17l-2-2"/></svg>',
+  select:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3" stroke-dasharray="3 2"><rect x="4" y="4" width="16" height="16"/></svg>',
+  read:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><path d="M12 6c-2-1.3-5-1.3-8 0v12c3-1.3 6-1.3 8 0M12 6c2-1.3 5-1.3 8 0v12c-3-1.3-6-1.3-8 0M12 6v12"/></svg>',
+  print:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="5" y="3" width="14" height="18"/><path d="M8 7h8M8 10h8M8 13h6"/></svg>',
+  web:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>',
+  lang:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
+  comment:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.4"><path d="M4 5h16v11H9l-4 4V5z"/></svg>',
+  cover:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="5" y="3" width="14" height="18"/><rect x="8" y="6" width="8" height="4" fill="#8aa" stroke="none"/><path d="M8 13h8M8 16h5"/></svg>',
+  blank:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="5" y="3" width="14" height="18"/></svg>',
+  pbreak:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="5" y="3" width="14" height="7"/><path d="M4 13h16" stroke-dasharray="2 2"/><rect x="5" y="16" width="14" height="5"/></svg>',
+  icons:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><circle cx="8" cy="8" r="3"/><rect x="13" y="5" width="6" height="6"/><path d="M5 20l3-5 3 5zM14 15h5v5h-5z"/></svg>',
+  smart:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="9" y="3" width="6" height="4"/><rect x="3" y="15" width="6" height="4"/><rect x="15" y="15" width="6" height="4"/><path d="M12 7v4M12 11H6v4M12 11h6v4"/></svg>',
+  footer:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="4" y="3" width="16" height="18"/><rect x="6" y="16" width="12" height="3" fill="#8aa" stroke="none"/><path d="M6 7h12M6 10h12M6 13h8"/></svg>',
+  pagenum:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="4" y="3" width="16" height="18"/><text x="8" y="16" font-size="8" fill="#555" stroke="none">#</text></svg>',
+  bookmark:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.4"><path d="M7 3h10v18l-5-4-5 4z"/></svg>',
+  ref:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.4"><path d="M4 6h16M4 11h16M4 16h10"/><path d="M15 19l3-3 3 3"/></svg>',
+  thes:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><path d="M6 4h8a4 4 0 0 1 0 8H6zM6 12h10a4 4 0 0 1 0 8H6z"/></svg>',
+  del:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c33" stroke-width="1.5"><path d="M6 7h12M9 7V5h6v2M8 7l1 13h6l1-13"/></svg>',
+  prev:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg>',
+  grid:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.1"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>',
+  navpane:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.3"><rect x="3" y="4" width="18" height="16"/><path d="M9 4v16"/><path d="M4 8h3M4 11h3M4 14h3"/></svg>',
+  z100:'<svg width="22" height="22" viewBox="0 0 24 24" fill="#555" font-size="9"><text x="2" y="16">100</text></svg>'
+};
+
+const b=(id,html,cls='')=>`<div class="btn ${cls}"${id?` id="${id}"`:''}>${html}</div>`;
+const big=(id,ic,t)=>b(id,`${ic}<span class="lbl">${t}</span>`,'big');
+const sm=(id,ic,t)=>b(id,`${ic}<span class="lbl">${t}</span>`,'sm');
+const col=x=>`<div class="col">${x}</div>`;
+const grp=(label,inner)=>`<div class="grp"><div class="row">${inner}</div><div class="gl">${label}</div></div>`;
+
+// ===== Faixas por aba =====
+const R={};
+R.home =
+ grp('Área de Transferência', big('bPaste',I.paste,'Colar') + col(sm('',I.cut,'Recortar')+sm('bCopy',I.copy,'Copiar')+sm('',I.brush,'Pincel')))
++grp('Fonte',
+   col(
+     `<div class="row">${b('bFont','<span class="lbl">Calibri (Corpo)</span><span class="caretd">&#9662;</span>','sel')}${b('bSize','<span class="lbl">11</span><span class="caretd">&#9662;</span>','sel')}${b('',I.grow)}${b('',I.shrink)}</div>`
+   + `<div class="row">${b('bBold',I.bold)}${b('bItalic',I.italic)}${b('bUnder',I.under)}${b('',I.strike)}${b('',I.sub)}${b('',I.sup)}<div class="sep"></div>${b('bHl',I.highlight)}${b('bColor',I.textcolor)}</div>`
+   ))
++grp('Parágrafo',
+   col(
+     `<div class="row">${b('bList',I.bullets)}${b('bNum',I.numbers)}${b('bInd',I.indent)}</div>`
+   + `<div class="row">${b('',I.alignL)}${b('bCenter',I.alignC)}${b('',I.alignR)}${b('',I.justify)}<div class="sep"></div>${b('bSpace',I.spacing)}</div>`
+   ))
++grp('Estilos', `<div class="gal"><div class="t1">Título&nbsp;1</div><div id="bStyle" class="t2">Título&nbsp;2</div><div>Normal</div></div>`)
++grp('Edição', col(sm('',I.find,'Localizar')+sm('bFind',I.replace,'Substituir')+sm('',I.select,'Selecionar')))
++grp('Editor', big('',I.editor,'Editor') + big('',I.dictate,'Ditar'));
+
+R.insert =
+ grp('Páginas', col(sm('',I.cover,'Folha de Rosto')+sm('',I.blank,'Página em Branco')+sm('',I.pbreak,'Quebra de Página')))
++grp('Tabelas', big('bTable',I.table,'Tabela'))
++grp('Ilustrações', big('bPic',I.pic,'Imagens') + col(sm('bShape',I.shape,'Formas')+sm('',I.icons,'Ícones')+sm('',I.smart,'SmartArt')))
++grp('Links', col(sm('bLink',I.link,'Link')+sm('',I.bookmark,'Indicador')+sm('',I.ref,'Ref. Cruzada')))
++grp('Cabeçalho e Rodapé', col(sm('bHead',I.header,'Cabeçalho')+sm('',I.footer,'Rodapé')+sm('',I.pagenum,'Nº de Página')));
+
+R.layout =
+ grp('Configurar Página', big('bMargin',I.margin,'Margens')+big('bOrient',I.orient,'Orientação')+big('',I.size,'Tamanho')+big('',I.cols,'Colunas'))
++grp('Parágrafo', col(sm('',I.indent,'Recuar à esquerda: 0 cm')+sm('',I.indent,'Recuar à direita: 0 cm'))+col(sm('',I.spacing,'Antes: 0 pt')+sm('',I.spacing,'Depois: 8 pt')));
+
+R.review =
+ grp('Revisão de Texto', big('',I.editor,'Editor')+col(sm('bSpell',I.spell,'Ortografia e Gramática')+sm('',I.thes,'Dicionário de Sinônimos')+sm('bWords',I.words,'Contagem de Palavras')))
++grp('Idioma', big('',I.lang,'Idioma'))
++grp('Comentários', col(sm('',I.comment,'Novo Comentário')+sm('',I.del,'Excluir')+sm('',I.prev,'Anterior')));
+
+R.view =
+ grp('Modos de Exibição', big('',I.read,'Modo de Leitura')+big('',I.print,'Layout de Impressão')+big('',I.web,'Layout da Web'))
++grp('Mostrar', col(sm('bRuler',I.ruler,'Régua')+sm('',I.grid,'Linhas de Grade')+sm('',I.navpane,'Painel de Navegação')))
++grp('Zoom', big('bZoom',I.zoom,'Zoom')+big('',I.z100,'100%'));
+
+// mapeia aba (índice) -> faixa
+const TABS = {0:'home',1:'home',2:'insert',3:'home',4:'layout',5:'review',6:'review',7:'review',8:'view',9:'home'};
+const RMAP = {home:R.home,insert:R.insert,layout:R.layout,review:R.review,view:R.view};
+
+// ===== Passos do tutorial =====
+// tab = índice da aba a destacar; target = seletor do botão/alvo
+const k=s=>`<b>${s}</b>`, K=s=>`<kbd>${s}</kbd>`, tip=s=>`<span class="tip">${s}</span>`;
+const step=(cat,title,tabIdx,target,flags,body)=>({cat,title,tabIdx,target,flags,body});
+
+const S=[
+ step('Começando','Conhecendo a tela',1,'#ribbon',{},`A ${k('Faixa de Opções')} reúne as ferramentas, organizadas em abas. A folha branca é onde você escreve, e a barra azul embaixo mostra a contagem de palavras.${tip('Não achou um botão? Procure em outra aba.')}`),
+ step('Começando','Digitando o texto',1,'#page',{typed:1},`O ${k('cursor')} piscando marca onde a letra vai aparecer. ${K('Enter')} cria um novo parágrafo e ${K('Backspace')} apaga a letra anterior.${tip('Repare no risco vermelho ondulado: é um possível erro de escrita.')}`),
+ step('Começando','Selecionando o texto',1,'#page',{sel:1},`Antes de formatar, você precisa ${k('selecionar')}: arraste o mouse sobre as palavras, ou use ${K('Ctrl+T')} para selecionar o documento inteiro.`),
+ step('Texto','Negrito',1,'#bBold',{sel:1,bold:1},`O ${k('N')} aplica ${k('negrito')}, deixando o texto mais grosso e destacado. Atalho: ${K('Ctrl+N')}.`),
+ step('Texto','Itálico e sublinhado',1,'#bItalic',{sel:1,bold:1,italic:1,under:1},`O ${k('I')} inclina a letra e o ${k('S')} coloca um risco embaixo. Atalhos: ${K('Ctrl+I')} e ${K('Ctrl+S')}.`),
+ step('Texto','Tipo de fonte',1,'#bFont',{bold:1,italic:1,under:1,font:1},`A ${k('fonte')} é o estilo da letra. Calibri é moderna; Times New Roman é clássica. Para trabalhos, prefira fontes fáceis de ler.`),
+ step('Texto','Tamanho da letra',1,'#bSize',{font:1,size:1},`O número define o ${k('tamanho')}. Texto normal fica em 11 ou 12; títulos em 16 ou mais.`),
+ step('Texto','Cor da fonte',1,'#bColor',{size:1,color:1},`Clique na setinha do ${k('A colorido')} para abrir a paleta e escolher a cor das letras.${tip('Evite cores muito claras: somem na folha branca.')}`),
+ step('Texto','Cor de realce',1,'#bHl',{size:1,color:1,hl:1},`O ${k('realce')} é o marca-texto do computador. Serve para destacar o que é importante, como no caderno.`),
+ step('Parágrafo','Alinhamento',1,'#bCenter',{color:1,hl:1,center:1},`Alinhe à esquerda ${K('Ctrl+Q')}, ao centro ${K('Ctrl+E')}, à direita ${K('Ctrl+G')} ou justificado ${K('Ctrl+J')}. Títulos costumam ficar centralizados.`),
+ step('Parágrafo','Marcadores',1,'#bList',{center:1,bullets:1},`Use ${k('marcadores')} para listar itens sem ordem. Cada ${K('Enter')} cria um item; dois Enters saem da lista.`),
+ step('Parágrafo','Numeração',1,'#bNum',{center:1,bullets:1,numbers:1},`Quando a ordem importa (passo a passo, ranking), use a ${k('numeração')}. O Word conta sozinho.`),
+ step('Parágrafo','Espaçamento',1,'#bSpace',{numbers:1,spacing:1},`Muda o espaço entre as linhas. Muitos professores pedem ${k('espaçamento 1,5')} para facilitar a leitura.`),
+ step('Parágrafo','Estilos de título',1,'#bStyle',{spacing:1,styled:1},`Os ${k('Estilos')} formatam títulos de uma vez (fonte, cor e tamanho) e deixam tudo mais organizado.${tip('Com estilos, o Word monta o sumário automaticamente.')}`),
+ step('Copiar e achar','Copiar e colar',1,'#bPaste',{styled:1,paste:1},`Selecione e use ${K('Ctrl+C')} para copiar, ${K('Ctrl+V')} para colar. Para mover, use ${K('Ctrl+X')} (recortar).${tip('Copiou da internet? Reescreva com suas palavras e cite a fonte.')}`),
+ step('Copiar e achar','Desfazer',1,'#bUndo',{styled:1,paste:1},`Errou? ${K('Ctrl+Z')} desfaz a última ação (pode repetir) e ${K('Ctrl+Y')} refaz.`),
+ step('Copiar e achar','Localizar e substituir',1,'#bFind',{styled:1,paste:1,replaced:1},`O ${k('Substituir')} (${K('Ctrl+U')}) troca uma palavra por outra em todo o texto de uma vez.`),
+ step('Inserir','Inserir imagem',2,'#bPic',{styled:1,paste:1,replaced:1,pic:1},`Na aba ${k('Inserir')}, clique em Imagens e escolha a foto. Depois arraste os cantos para ajustar o tamanho.`),
+ step('Inserir','Inserir tabela',2,'#bTable',{pic:1,table:1},`Escolha ${k('linhas e colunas')}. Ótimo para horários, notas e comparações. ${K('Tab')} pula para a próxima célula.`),
+ step('Inserir','Formas',2,'#bShape',{pic:1,table:1,shape:1},`${k('Formas')} como balões e setas deixam o trabalho mais criativo, e dá para escrever dentro delas.`),
+ step('Inserir','Hiperlink',2,'#bLink',{pic:1,table:1,shape:1,link:1},`Um ${k('link')} leva o leitor direto a um site. Fica azul e sublinhado. Use para indicar suas fontes.`),
+ step('Inserir','Cabeçalho e rodapé',2,'#bHead',{link:1,header:1},`O ${k('cabeçalho')} fica no topo e o ${k('rodapé')} embaixo de todas as páginas. Bom para nome, turma e número da página.`),
+ step('Página','Margens',4,'#bMargin',{header:1,margin:1},`${k('Margens')} são as bordas brancas da folha. Para trabalhos, o padrão "Normal" costuma servir.`),
+ step('Página','Orientação',4,'#bOrient',{header:1,margin:1,landscape:1},`${k('Retrato')} é a folha em pé (trabalhos). ${k('Paisagem')} é deitada (tabelas largas, cartazes).`),
+ step('Revisão','Ortografia',7,'#bSpell',{landscape:1,fixed:1},`Risco ${k('vermelho')} indica possível erro de escrita; ${k('azul')}, de gramática. Clique com o botão direito ou aperte ${K('F7')}.${tip('O corretor ajuda, mas não substitui reler o texto.')}`),
+ step('Revisão','Contar palavras',7,'#bWords',{landscape:1,fixed:1},`Precisa de um mínimo de palavras? A ${k('contagem')} aparece na barra de status em tempo real.`),
+ step('Exibir','Régua e zoom',8,'#bRuler',{landscape:1,fixed:1,ruler:1},`A ${k('régua')} ajuda a medir margens e recuos. O ${k('zoom')} aproxima a folha sem mudar o tamanho real da letra.`),
+ step('Salvar','Salvar o arquivo',1,'#bSave',{landscape:1,fixed:1,saved:1},`${k('Salve sempre!')} Use o disquete ou ${K('Ctrl+B')}, escolha a pasta e dê um nome.${tip('Salve no começo e vá salvando durante o trabalho.')}`)
+];
+
+// ===== Documento de exemplo =====
+const T1='Meu animal favorito';
+const T2='Eu adoro cachorro porque ele é muito carinhozo e brincalhão.';
+const $=s=>document.querySelector(s);
+const page=$('#page'), cursor=$('#cursor'), pop=$('#pop'), ribbon=$('#ribbon');
+let idx=0, token=0, timer=null;
+
+function accum(n){const f={};for(let j=0;j<=n;j++)Object.assign(f,S[j].flags);return f}
+
+function render(f, text){
+ if(!f.typed && !text){page.innerHTML='<span class="caret"></span>';countWords('');return}
+ const tx = text || [T1,T2];
+ let title = tx[0]||'', body = tx[1]||'';
+ if(f.italic) title = title.replace('favorito','<i>favorito</i>');
+ let word = f.replaced ? 'cão' : 'cachorro';
+ if(f.under) word = `<u>${word}</u>`;
+ if(f.replaced) word = `<mark class="g appear">${word}</mark>`;
+ body = body.replace('cachorro', word);
+ if(f.hl) body = body.replace('brincalhão','<mark>brincalhão</mark>');
+ body = body.replace('carinhozo', f.fixed ? 'carinhoso' : '<span class="err">carinhozo</span>');
+ const ts = `font-weight:${f.bold?700:400};`
+   + `font-family:${f.font?'Georgia, "Times New Roman", serif':'inherit'};`
+   + `font-size:${f.size?'20pt':'16pt'};`
+   + `color:${f.color||'#000'};`
+   + `text-align:${f.center?'center':'left'};`;
+ let html = (f.header?'<div class="hd appear">Escola Municipal — 7º ano &nbsp;|&nbsp; Aula de Informática</div>':'')
+   + `<h2 style="${ts}" class="${f.sel?'sel':''}">${title}</h2>`
+   + `<p style="line-height:${f.spacing?2:1.5};">${body}</p>`;
+ if(f.paste) html += '<p class="appear">Cachorros são ótimos amigos e nos fazem companhia todos os dias.</p>';
+ if(f.bullets) html += '<ul class="appear"><li>Carinhoso</li><li>Brincalhão</li><li>Leal</li></ul>';
+ if(f.numbers) html += (f.styled?'<div class="subhead appear">Cuidados</div>':'<p class="appear"><b>Cuidados:</b></p>') + '<ol class="appear"><li>Dar água fresca</li><li>Passear todos os dias</li><li>Levar ao veterinário</li></ol>';
+ if(f.link) html += '<p class="appear">Saiba mais: <span class="lk">www.exemplo.com/caes</span></p>';
+ if(f.pic) html += '<div class="appear"><span class="img"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8aa" stroke-width="1.3"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="8" cy="10" r="1.6"/><path d="M4 17l5-5 4 4 3-3 4 4"/></svg></span></div>';
+ if(f.shape) html += '<div class="appear"><span class="shape">Au au!</span></div>';
+ if(f.table) html += '<table class="doc appear"><tr><th>Nome</th><th>Idade</th></tr><tr><td>Rex</td><td>3 anos</td></tr><tr><td>Mel</td><td>1 ano</td></tr></table>';
+ if(f.header) html += '<div class="ft">Página 1</div>';
+ page.innerHTML = html;
+ page.style.padding = f.margin ? '76px 140px' : '';
+ page.classList.toggle('landscape', !!f.landscape);
+ $('#ruler').style.display = f.ruler ? 'block' : 'none';
+ countWords(tx[0]+' '+tx[1]);
+ $('#fname').textContent = f.saved ? 'Meu animal favorito.docx — Salvo' : 'Documento1 — Word';
+}
+
+function countWords(s){
+ const n = s.trim() ? s.trim().split(/\s+/).filter(Boolean).length : 0;
+ $('#wc').innerHTML = `Página 1 de 1 &nbsp;&nbsp; ${n} palavras &nbsp;&nbsp; Português (Brasil)`;
+}
+
+function typeInto(my, f){
+ const full = T1+'\n'+T2;
+ let n=0;
+ const iv=setInterval(()=>{
+   if(my!==token){clearInterval(iv);return}
+   n+=2;
+   const parts = full.slice(0,n).split('\n');
+   render(f,[parts[0]||'', parts[1]||'']);
+   if(n>=full.length)clearInterval(iv);
+ },30);
+}
+
+function placePopup(rect){
+ const pw=pop.offsetWidth, ph=pop.offsetHeight, gap=16, vw=innerWidth, vh=innerHeight;
+ let left, top, side;
+ if(rect.right + gap + pw < vw){ left=rect.right+gap; side='left'; }       // popup à direita do alvo
+ else if(rect.left - gap - pw > 0){ left=rect.left-gap-pw; side='right'; } // à esquerda
+ else { left=Math.min(Math.max(8,rect.left), vw-pw-8); side='top'; }       // em cima
+ if(side==='top'){ top = rect.top - gap - ph; if(top<8){ top=rect.bottom+gap; side='bottom'; } }
+ else { top = rect.top + rect.height/2 - 36; }
+ top = Math.min(Math.max(8, top), vh-ph-8);
+ left = Math.min(Math.max(8, left), vw-pw-8);
+ pop.style.left=left+'px'; pop.style.top=top+'px'; pop.dataset.side=side;
+}
+
+function go(n){
+ idx = Math.max(0, Math.min(S.length-1, n));
+ const my = ++token, s = S[idx];
+
+ // limpa destaques anteriores (inclusive os da barra de título)
+ document.querySelectorAll('.hl').forEach(e=>e.classList.remove('hl'));
+ colorMenu.classList.remove('show');
+
+ // aba + faixa
+ const kind = TABS[s.tabIdx];
+ ribbon.innerHTML = RMAP[kind] || R.home;
+ for(let j=0;j<10;j++) $('#t'+j).className = 'tab' + (j===s.tabIdx?' on':'');
+
+ // popup
+ $('#pStep').textContent = `${s.cat} · passo ${idx+1} de ${S.length}`;
+ $('#pTitle').textContent = s.title;
+ $('#pBody').innerHTML = s.body;
+ $('#pProg').style.width = ((idx+1)/S.length*100)+'%';
+ $('#prev').disabled = idx===0;
+ $('#next').disabled = idx===S.length-1;
+
+ // documento no estado ANTERIOR (a "ação" acontece neste passo)
+ render(accum(idx-1));
+
+ // posiciona cursor sobre o alvo (fallback para a faixa se não encontrar)
+ const el = $(s.target) || ribbon;
+ const big = s.target==='#ribbon' || s.target==='#page' || el===ribbon;
+ const r = el.getBoundingClientRect();
+ const cx = big ? r.left+120 : r.left + r.width/2;
+ const cy = big ? r.top+40 : r.top + r.height/2;
+ cursor.style.left = cx+'px';
+ cursor.style.top  = cy+'px';
+ if(!big) el.classList.add('hl');
+
+ // popup aparece ao lado do alvo (ponto de clique)
+ placePopup(r);
+
+ // "clique" após o cursor chegar
+ setTimeout(()=>{
+   if(my!==token) return;
+   cursor.classList.add('click');
+   setTimeout(()=>cursor.classList.remove('click'),380);
+   // caso especial: cor abre a paleta
+   if(s.target==='#bColor') openColorMenu(r);
+   if(idx===1) typeInto(my, accum(1));
+   else render(accum(idx));
+ }, 820);
+}
+
+// ===== Paleta de cores (menu suspenso) =====
+const THEME=['#FFFFFF','#000000','#E7E6E6','#44546A','#4472C4','#ED7D31','#A5A5A5','#FFC000','#5B9BD5','#70AD47'];
+const STD=['#C00000','#FF0000','#FFC000','#FFFF00','#92D050','#00B050','#00B0F0','#0070C0','#002060','#7030A0'];
+const colorMenu=$('#colorMenu');
+function openColorMenu(rect){
+ colorMenu.innerHTML =
+   '<div class="mt">Cores do Tema</div><div class="grid">'
+   + THEME.map(c=>`<div class="sw" style="background:${c}" data-c="${c}"></div>`).join('')
+   + '</div><div class="mt" style="margin-top:8px">Cores Padrão</div><div class="grid std">'
+   + STD.map(c=>`<div class="sw" style="background:${c}" data-c="${c}"></div>`).join('')
+   + '</div><div class="pick"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2b579a" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg> Mais Cores…</div>';
+ const vw=innerWidth, vh=innerHeight;
+ let left = Math.min(rect.left, vw-colorMenu.offsetWidth-8);
+ let top = Math.min(rect.bottom+4, vh-colorMenu.offsetHeight-8);
+ colorMenu.style.left=left+'px'; colorMenu.style.top=top+'px';
+ colorMenu.classList.add('show');
+ colorMenu.querySelectorAll('.sw').forEach(el=>{
+   el.onclick=()=>{
+     const c=el.dataset.c;
+     const f=accum(idx); f.color=c;
+     render(f);
+     colorMenu.classList.remove('show');
+   };
+ });
+ // auto-seleciona o azul do passo após um instante (para o modo automático)
+ clearTimeout(colorMenu._t);
+ colorMenu._t=setTimeout(()=>{
+   const f=accum(idx); f.color='#2b579a'; render(f);
+ }, 1400);
+}
+document.addEventListener('click',e=>{
+ if(!colorMenu.contains(e.target)) colorMenu.classList.remove('show');
+});
+
+// ===== Navegação =====
+$('#next').onclick=()=>{stopAuto();go(idx+1)};
+$('#prev').onclick=()=>{stopAuto();go(idx-1)};
+addEventListener('keydown',e=>{
+ if(e.key==='ArrowRight'){stopAuto();go(idx+1)}
+ if(e.key==='ArrowLeft'){stopAuto();go(idx-1)}
+});
+
+function stopAuto(){ if(timer){clearInterval(timer);timer=null;$('#auto').innerHTML='&#9654; Automático'} }
+$('#auto').onclick=function(){
+ if(timer){stopAuto();return}
+ this.innerHTML='&#10073;&#10073; Pausar';
+ if(idx>=S.length-1) go(0);
+ timer=setInterval(()=>{
+   if(idx>=S.length-1){clearInterval(timer);timer=null;$('#auto').innerHTML='&#8635; Repetir';return}
+   go(idx+1);
+ }, 5200);
+};
+
+addEventListener('resize',()=>go(idx));
+go(0);
+</script>
+</body>
+</html>
